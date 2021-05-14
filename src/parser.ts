@@ -7,7 +7,8 @@ import { Input, Source } from "./source";
 import { Token, TokenCode, Tokenizer, TokenType } from "./tokenizer";
 
 interface ReadOptions {
-  ignoreWhitespace?: boolean;
+  ws?: boolean;
+  eof?: boolean;
 }
 
 export class Parser {
@@ -21,23 +22,19 @@ export class Parser {
   }
 
   parse(): Node {
-    for (const token of this.tokenizer) {
-      if (token.isEOF && this.inRootScope()) {
-        break;
-      }
+    const token = this.read();
 
-      if (token.isWhitespace) {
-        continue;
-      }
-
-      this.parseToken(token);
+    if (!token.isControl(TokenCode.LeftCurlyBracket)) {
+      throw new KeyValuesSyntaxError(
+        `Unexpected character: ${inspect(token.text)}`,
+        this.tokenSource(token)
+      );
     }
 
-    return this.#root;
-  }
+    this.object(token);
+    this.readEOF();
 
-  private inRootScope(): boolean {
-    return this.#scope === this.#root;
+    return this.#root;
   }
 
   private parseToken(token: Token): Node {
@@ -93,28 +90,39 @@ export class Parser {
     const next = this.tokenizer.next();
 
     if (next.done !== false) {
-      throw new KeyValuesSyntaxError("Unexpected end of stream");
+      throw new AssertionError({
+        message: "Internal error: unexpected end of stream",
+      });
     }
 
-    const { value: token } = next;
+    return next.value;
+  }
 
-    if (token.isEOF) {
+  private read({ ws, eof }: ReadOptions = {}): Token {
+    let token = this._read();
+
+    if (!ws) {
+      while (token.isWhitespace) {
+        token = this._read();
+      }
+    }
+
+    if (token.isEOF && !eof) {
       throw new KeyValuesSyntaxError("Unexpected end of file", this.tokenSource(token));
     }
 
     return token;
   }
 
-  private read({ ignoreWhitespace }: ReadOptions = {}): Token {
-    let token = this._read();
+  private readEOF(): void {
+    const token = this.read({ eof: true });
 
-    if (ignoreWhitespace) {
-      while (token.isWhitespace) {
-        token = this._read();
-      }
+    if (!token.isEOF) {
+      throw new KeyValuesSyntaxError(
+        `Excess content ${inspect(token.text)}, expected end of file`,
+        this.tokenSource(token)
+      );
     }
-
-    return token;
   }
 
   private readControl(code: TokenCode, options: ReadOptions = {}): Token {
@@ -159,7 +167,14 @@ export class Parser {
   }
 
   private object(openToken: Token): Node {
-    const node = this.createNode(NodeType.Object, openToken);
+    let node: Node;
+
+    // special case for first (and only) object as root node
+    if (this.#scope == null) {
+      node = this.#root;
+    } else {
+      node = this.createNode(NodeType.Object, openToken);
+    }
 
     this.openScope(node);
 
@@ -175,7 +190,10 @@ export class Parser {
 
       if (token.isControl(TokenCode.RightCurlyBracket)) {
         this.assertScope(node);
-        this.closeScope();
+
+        if (node !== this.#root) {
+          this.closeScope();
+        }
 
         node.tokens.push(token);
 
@@ -199,15 +217,14 @@ export class Parser {
   }
 
   private objectProperty(keyToken: Token): Node {
-    const equalsToken = this.readControl(TokenCode.Equals, { ignoreWhitespace: true });
+    const equalsToken = this.readControl(TokenCode.Equals);
     const node = this.createNode(NodeType.Property, keyToken, equalsToken);
-    let nextToken = this.read({ ignoreWhitespace: true });
+    let nextToken = this.read();
     let flagToken: Token | undefined;
 
     this.openScope(node);
 
     if (nextToken.isText) {
-      // try to parse FlagString
       flagToken = nextToken;
       nextToken = this.read();
 
