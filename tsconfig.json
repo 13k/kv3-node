@@ -1,0 +1,15 @@
+{
+  "ts-node": { "files": true },
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "lib": ["esnext"],
+    "moduleResolution": "node",
+    "target": "es2020",
+    "declaration": true,
+    "strict": true,
+    "alwaysStrict": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"]
+}

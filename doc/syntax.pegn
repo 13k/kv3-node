@@ -1,0 +1,31 @@
+Document <-- ws* Object ws*
+
+Value <- ws* (Object / Array / Number / String / FlagString / Boolean) ws*
+
+Object <-- LCURLY ws* (Member / Comment)* ws* RCURLY
+Member <-- Key ws* EQ ws* Value
+Key <-- alpha word*
+
+Array <-- LBRAKT ws* Value (ws* COMMA ws* Value)* ws* (COMMA ws*)? RBRAKT
+
+String <-- SingleLineString / MultiLineString
+Escaped <- BKSLASH ('b' / 'f' / 'n' / 'r' / 't' / 'u' hexdig{4} / DQ / BKSLASH / SLASH)
+SingleLineString <-- DQ (Escaped / ugraphic)* DQ
+MultiLineString <-- DQ{3} EndLine ugraphic* EndLine DQ{3}
+
+FlagString <-- Flag COLON SingleLineString
+Flag <-- 'resource' / 'deferred_resource'
+
+Boolean <- True / False
+True <-- 'true'
+False <-- 'false'
+
+Number <-- MINUS? Integer (DOT digit+)?
+Integer <- '0' / [1-9] digit*
+
+Comment <-- SingleLineComment / MultiLineComment
+SingleLineComment <-- SLASH{2} LineText? EndLine
+MultiLineComment <-- SLASH STAR (LineText EndLine)* STAR SLASH
+
+LineText <-- (!EndLine any)+
+EndLine <-- LF / CRLF
