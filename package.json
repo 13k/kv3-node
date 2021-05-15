@@ -1,5 +1,18 @@
 {
   "name": "kv3",
+  "version": "0.1.0",
+  "description": "Parser for Valve's KeyValues3 (kv3) format",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">= 14.17"
+  },
+  "dependencies": {
+    "core-js": "^3.12.1"
+  },
   "devDependencies": {
     "@types/chai": "^4.2.18",
     "@types/core-js": "^2.5.4",
@@ -18,7 +31,28 @@
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
   },
-  "dependencies": {
-    "core-js": "^3.12.1"
-  }
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha"
+  },
+  "license": "GPL-3.0",
+  "author": {
+    "name": "Kiyoshi Murata",
+    "email": "kbmurata@gmail.com",
+    "url": "https://13k.github.io"
+  },
+  "contributors": [],
+  "homepage": "https://github.com/13k/kv3-node",
+  "bugs": {
+    "url": "https://github.com/13k/kv3-node/issues"
+  },
+  "repository": "github:13k/kv3-node",
+  "keywords": [
+    "keyvalues3",
+    "kv3",
+    "keyvalues",
+    "kv",
+    "vdf",
+    "valve"
+  ]
 }
