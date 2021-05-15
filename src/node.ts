@@ -32,6 +32,34 @@ export class Node {
     return this.parent != null;
   }
 
+  isObject(): this is Node & { type: NodeType.Object } {
+    return this.type === NodeType.Object;
+  }
+
+  isProperty(): this is Node & { type: NodeType.Property } {
+    return this.type === NodeType.Property;
+  }
+
+  isArray(): this is Node & { type: NodeType.Array } {
+    return this.type === NodeType.Array;
+  }
+
+  isString(): this is Node & { type: NodeType.String } {
+    return this.type === NodeType.String;
+  }
+
+  isNumber(): this is Node & { type: NodeType.Number } {
+    return this.type === NodeType.Number;
+  }
+
+  isBoolean(): this is Node & { type: NodeType.Boolean } {
+    return this.type === NodeType.Boolean;
+  }
+
+  isComment(): this is Node & { type: NodeType.Comment } {
+    return this.type === NodeType.Comment;
+  }
+
   get root(): Node {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let result: Node = this;

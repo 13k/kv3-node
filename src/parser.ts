@@ -155,11 +155,13 @@ export class Parser {
   }
 
   private closeScope(): void {
-    if (this.scope().parent == null) {
+    const scope = this.scope();
+
+    if (!scope.hasParent()) {
       throw new AssertionError({ message: "Internal error: current.parent is null" });
     }
 
-    this.#scope = this.scope().parent;
+    this.#scope = scope.parent;
   }
 
   private createNode(type: NodeType, ...tokens: Token[]): Node {
