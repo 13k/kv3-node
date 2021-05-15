@@ -1,11 +1,12 @@
 {
   "ts-node": { "files": true },
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "src",
     "outDir": "dist",
     "lib": ["esnext"],
     "moduleResolution": "node",
     "target": "es2020",
+    "module": "CommonJS",
     "declaration": true,
     "strict": true,
     "alwaysStrict": true,
