@@ -82,28 +82,30 @@ export class Source {
    * Calculates the position at given index.
    *
    * @param index Source data index
-   * @param offsetPos Start search from given position offset
    * @returns If index could not be found (out-of-bounds), returns `null`.
    */
-  positionAt(index: number, offsetPos?: Position): Position | null {
-    offsetPos ||= { offset: 0, line: 1, column: 1 };
+  positionAt(index: number): Position | null {
+    if (index < 0 || index >= this.data.length) {
+      return null;
+    }
 
-    let { line, column } = offsetPos;
+    if (index === 0) {
+      return { offset: 0, line: 1, column: 1 };
+    }
 
-    for (let i = offsetPos.offset; i < index; i++) {
-      if (i === this.data.length) {
-        return null;
-      }
+    let line = 1;
+    let column = 0;
 
-      if (this.data[i] === "\n") {
-        column = 1;
-        line += 1;
-      } else {
+    for (let i = 0; i <= index; i++) {
+      if (this.data[i] !== "\n") {
         column += 1;
+      } else if (i < index) {
+        column = 0;
+        line += 1;
       }
     }
 
-    return { offset: offsetPos.offset, line, column };
+    return { offset: 0, line, column };
   }
 
   /**
