@@ -9,8 +9,8 @@ const readFileP = promisify(readFile);
 
 /** Options passed to {@link parseFile}. */
 export interface ParseFileOptions {
-  /** Encoding of the file, defaults to "utf-8". */
-  encoding?: string;
+  /** Encoding of the file, defaults to "utf8". */
+  encoding?: BufferEncoding;
 }
 
 /**
@@ -18,13 +18,13 @@ export interface ParseFileOptions {
  *
  * @param filename Path to file.
  * @param options Options object.
- * @param options.encoding Encoding of file. Default is "utf-8".
+ * @param options.encoding Encoding of file. Default is "utf8".
  */
 export async function parseFile(
   filename: string,
   options: ParseFileOptions = {}
 ): Promise<ObjectValue> {
-  const encoding = options.encoding ?? "utf-8";
+  const encoding = options.encoding ?? "utf8";
   const data = await readFileP(filename, { encoding });
 
   return parse(data, { filename });
