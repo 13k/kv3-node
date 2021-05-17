@@ -1,91 +1,84 @@
-import type { Input, Source } from "./source";
+import type { Position, Source, SourcePosition } from "./source";
 
+/** KeyValuesError is the base error class for all errors in the package. */
 export class KeyValuesError extends Error {}
 
-export class KeyValuesInputError extends KeyValuesError {
+/** KeyValuesSourceError is an error thrown by the tokenizer on input source errors. */
+export class KeyValuesSourceError extends KeyValuesError {
   #toString?: string;
 
   /**
    * @param message Error message
-   * @param input Source input
+   * @param src Source
    */
-  constructor(message: string, public input?: Input) {
+  constructor(message: string, public src: Source) {
     super(message);
   }
 
+  /** Returns a formatted representation of the error. */
   toString(): string {
     if (this.#toString != null) {
       return this.#toString;
     }
 
-    let result = "";
+    this.#toString = "";
 
-    if (this.input) {
-      result += this.input.filename || "<input>";
+    if (this.src) {
+      this.#toString += this.src.filename || "<input>";
     }
 
-    if (result.length > 0) {
-      result += ": ";
+    if (this.#toString.length > 0) {
+      this.#toString += ": ";
     }
 
-    result += this.message;
-
-    this.#toString = result;
+    this.#toString += this.message;
 
     return this.#toString;
   }
 }
 
-export class KeyValuesSyntaxError extends KeyValuesInputError {
+/** KeyValuesSyntaxError is an error thrown by the parser on syntax errors. */
+export class KeyValuesSyntaxError extends KeyValuesSourceError {
+  pos: Position;
   #toString?: string;
 
   /**
    * @param message Error message
-   * @param source Source with input and position where error happened
+   * @param srcPos Source pointer with source and position where error happened
    */
-  constructor(message: string, public source?: Source) {
-    super(message, source?.input);
+  constructor(message: string, public srcPos: SourcePosition) {
+    super(message, srcPos.source);
+
+    this.pos = srcPos.position;
   }
 
+  /**
+   * Returns a formatted representation of the error with context lines around the error position.
+   */
   toString(): string {
     if (this.#toString != null) {
       return this.#toString;
     }
 
-    let result = "";
+    const ctxLines = 2;
+    const filename = this.src.filename || "<input>";
+    const context = this.src.getContext(this.pos, ctxLines);
+    let lineno = this.pos.line - ctxLines;
 
-    if (this.source) {
-      result += this.source.input.filename || "<input>";
-      result += `:${this.source.position.line}:${this.source.position.column}`;
-    }
+    this.#toString = `${filename}:${this.pos.line}:${this.pos.column}: ${this.message}\n`;
 
-    if (result.length > 0) {
-      result += ": ";
-    }
+    for (const line of context.split("\n")) {
+      const linenoCol = `${lineno.toString().padStart(4, " ")} | `;
 
-    result += this.message;
+      this.#toString += `${linenoCol}${line}\n`;
 
-    if (this.source) {
-      result += "\n";
-
-      const contextLines = 2;
-      const context = this.source.input.getContext(this.source.position, contextLines);
-      let lineno = this.source.position.line - contextLines;
-
-      for (const line of context.split("\n")) {
-        const linenoCol = `${lineno.toString().padStart(4, " ")} | `;
-        result += `${linenoCol}${line}\n`;
-
-        if (this.source.position.line === lineno) {
-          result += " ".repeat(linenoCol.length + this.source.position.column - 1);
-          result += "^^^\n";
-        }
-
-        lineno += 1;
+      if (this.pos.line === lineno) {
+        this.#toString += " ".repeat(linenoCol.length + this.pos.column - 1);
+        this.#toString += "^^^\n";
       }
-    }
 
-    this.#toString = result;
+      lineno += 1;
+    }
 
     return this.#toString;
   }

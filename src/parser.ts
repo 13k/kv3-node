@@ -1,34 +1,71 @@
-import { AssertionError, strict as assert } from "assert";
 import { inspect } from "util";
 
+import {
+  ArrayNode,
+  BooleanNode,
+  CommentNode,
+  Node,
+  NumberNode,
+  ObjectNode,
+  PropertyNode,
+  RootNode,
+  StringNode,
+} from "./ast";
+import { StringFlag } from "./const";
 import { KeyValuesSyntaxError } from "./errors";
-import { Node, NodeType } from "./node";
-import { Input, Source } from "./source";
-import { Token, TokenCode, Tokenizer, TokenType } from "./tokenizer";
+import { Source, SourcePosition } from "./source";
+import {
+  ArrayOpenToken,
+  BooleanToken,
+  CommentToken,
+  ControlToken,
+  KeywordToken,
+  MultilineCommentToken,
+  MultilineStringToken,
+  NumberToken,
+  ObjectOpenToken,
+  StringToken,
+  TextToken,
+  Token,
+  TokenCode,
+  Tokenizer,
+} from "./token";
+
+const STRING_FLAG_VALUES: string[] = Object.values(StringFlag);
 
 interface ReadOptions {
   ws?: boolean;
   eof?: boolean;
 }
 
+/**
+ * Parser is responsible for parsing a {@link Source} and generating a {@link Node} tree.
+ */
 export class Parser {
   tokenizer: Tokenizer;
-  #root: Node;
-  #scope?: Node;
+  #root: RootNode;
+  #scope: Node;
 
-  constructor(public input: Input) {
-    this.tokenizer = new Tokenizer(this.input);
-    this.#root = Node.root();
+  /**
+   * @param src input source
+   */
+  constructor(public src: Source) {
+    this.tokenizer = new Tokenizer(this.src);
+    this.#root = new RootNode();
+    this.#scope = this.#root;
   }
 
-  parse(): Node {
+  /** Returns the raw kv3 header string. */
+  get header(): string {
+    return this.tokenizer.header;
+  }
+
+  /** Parses the source and returns an AST root node. */
+  parse(): RootNode {
     const token = this.read();
 
-    if (!token.isControl(TokenCode.LeftCurlyBracket)) {
-      throw new KeyValuesSyntaxError(
-        `Unexpected character: ${inspect(token.text)}`,
-        this.tokenSource(token)
-      );
+    if (!token.isObjectOpen()) {
+      throw this.syntaxError(token);
     }
 
     this.object(token);
@@ -37,62 +74,60 @@ export class Parser {
     return this.#root;
   }
 
-  private parseToken(token: Token): Node {
-    switch (token.type) {
-      case TokenType.Control:
-        switch (token.code) {
-          case TokenCode.LeftCurlyBracket:
-            return this.object(token);
+  private syntaxError(token: Token, message?: string): KeyValuesSyntaxError {
+    message ||= `Unexpected token ${token}`;
 
-          case TokenCode.LeftSquareBracket:
-            return this.array(token);
+    return new KeyValuesSyntaxError(message, this.tokenSource(token));
+  }
 
-          default:
-            throw new KeyValuesSyntaxError(
-              `Unexpected character: ${inspect(token.text)}`,
-              this.tokenSource(token)
-            );
-        }
+  private isRootScope(): boolean {
+    return this.#scope.isRoot;
+  }
 
-      case TokenType.Comment:
-      case TokenType.MultilineComment:
-        return this.comment(token);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private assertScopeClass<T extends Node>(ctor: new (...args: any[]) => T): T {
+    if (!(this.#scope instanceof ctor)) {
+      throw new Error(
+        `Internal error: expected scope to be any ${ctor.name}, but is ${this.#scope.type}`
+      );
+    }
 
-      case TokenType.String:
-      case TokenType.MultilineString:
-        return this.string(token);
+    return this.#scope;
+  }
 
-      case TokenType.Number:
-        return this.number(token);
-
-      case TokenType.Keyword:
-        return this.keyword(token);
-
-      default:
-        throw new KeyValuesSyntaxError(
-          `Unexpected token: ${inspect(token.text)}`,
-          this.tokenSource(token)
-        );
+  private assertScopeNode(node: Node): void {
+    if (this.#scope !== node) {
+      throw new Error(
+        `Internal error: expected scope to be ${node.type}, but is ${this.#scope.type}`
+      );
     }
   }
 
-  private tokenSource(token: Token): Source {
-    const position = this.input.positionAt(token.start);
+  private openScope<T extends Node>(node: T): T {
+    this.#scope = node;
 
-    if (position == null) {
-      throw new Error(`Internal error: could not find position for token ${token}`);
+    return node;
+  }
+
+  private closeScope(): void {
+    if (!this.#scope.hasParent()) {
+      throw new Error("Internal error: scope parent is null");
     }
 
-    return { input: this.input, position };
+    this.#scope = this.#scope.parent;
+  }
+
+  private scopePush<T extends Node>(node: T): T {
+    this.#scope.append(node);
+
+    return node;
   }
 
   private _read(): Token {
     const next = this.tokenizer.next();
 
     if (next.done !== false) {
-      throw new AssertionError({
-        message: "Internal error: unexpected end of stream",
-      });
+      throw new Error("Internal error: unexpected end of tokens stream");
     }
 
     return next.value;
@@ -102,13 +137,13 @@ export class Parser {
     let token = this._read();
 
     if (!ws) {
-      while (token.isWhitespace) {
+      while (token.isWhitespace()) {
         token = this._read();
       }
     }
 
-    if (token.isEOF && !eof) {
-      throw new KeyValuesSyntaxError("Unexpected end of file", this.tokenSource(token));
+    if (token.isEOF() && !eof) {
+      throw this.syntaxError(token, "Unexpected end of file");
     }
 
     return token;
@@ -117,143 +152,151 @@ export class Parser {
   private readEOF(): void {
     const token = this.read({ eof: true });
 
-    if (!token.isEOF) {
-      throw new KeyValuesSyntaxError(
-        `Excess content ${inspect(token.text)}, expected end of file`,
-        this.tokenSource(token)
-      );
+    if (!token.isEOF()) {
+      throw this.syntaxError(token, `Expected end of file, got ${token}`);
     }
   }
 
-  private readControl(code: TokenCode, options: ReadOptions = {}): Token {
+  private readControl<T extends TokenCode>(
+    code: T,
+    options: ReadOptions = {}
+  ): ControlToken & { code: T } {
     const token = this.read(options);
 
-    if (!token.isControl(code)) {
-      throw new KeyValuesSyntaxError(
-        `Unexpected token ${inspect(token.text)}, expected ${inspect(String.fromCharCode(code))}`,
-        this.tokenSource(token)
+    if (!token.isControlCode(code)) {
+      throw this.syntaxError(
+        token,
+        `Unexpected token ${token}, expected ${inspect(String.fromCharCode(code))}`
       );
     }
 
     return token;
   }
 
-  private scope(): Node {
-    if (this.#scope == null) {
-      throw new AssertionError({ message: "Internal error: current is null" });
+  private tokenSource(token: Token): SourcePosition {
+    const position = this.src.positionAt(token.start);
+
+    if (position == null) {
+      throw new Error(`Internal error: could not find position for token ${token}`);
     }
 
-    return this.#scope;
+    return { source: this.src, position };
   }
 
-  private assertScope(node: Node): void {
-    assert.equal(this.scope(), node);
-  }
+  private parseToken(token: Token): Node {
+    if (token.isControl()) {
+      if (token.isObjectOpen()) {
+        return this.object(token);
+      } else if (token.isArrayOpen()) {
+        return this.array(token);
+      }
 
-  private openScope(node: Node): void {
-    this.#scope = node;
-  }
-
-  private closeScope(): void {
-    const scope = this.scope();
-
-    if (!scope.hasParent()) {
-      throw new AssertionError({ message: "Internal error: current.parent is null" });
+      throw this.syntaxError(token);
     }
 
-    this.#scope = scope.parent;
+    if (token.isKeyword()) {
+      return this.keyword(token);
+    }
+
+    if (token.isNumber()) {
+      return this.number(token);
+    }
+
+    if (token.isString() || token.isMultilineString()) {
+      return this.string(token);
+    }
+
+    if (token.isComment() || token.isMultilineComment()) {
+      return this.comment(token);
+    }
+
+    throw this.syntaxError(token);
   }
 
-  private createNode(type: NodeType, ...tokens: Token[]): Node {
-    return this.scope().create(type, ...tokens);
-  }
-
-  private object(openToken: Token): Node {
-    let node: Node;
+  private object(openToken: ObjectOpenToken): ObjectNode {
+    let node: ObjectNode;
 
     // special case for first (and only) object as root node
-    if (this.#scope == null) {
+    if (this.isRootScope()) {
       node = this.#root;
     } else {
-      node = this.createNode(NodeType.Object, openToken);
+      node = new ObjectNode(this.#scope);
+
+      this.scopePush(node);
+      this.openScope(node);
     }
 
-    this.openScope(node);
+    node.appendTokens(openToken);
 
     for (const token of this.tokenizer) {
-      if (token.isWhitespace) {
+      if (token.isObjectClose()) {
+        this.assertScopeNode(node);
+
+        if (!this.isRootScope()) {
+          this.closeScope();
+        }
+
+        node.appendTokens(token);
+        break;
+      }
+
+      if (token.isWhitespace()) {
         continue;
       }
 
-      if (token.isText) {
+      if (token.isText()) {
         this.objectProperty(token);
         continue;
       }
 
-      if (token.isControl(TokenCode.RightCurlyBracket)) {
-        this.assertScope(node);
-
-        if (node !== this.#root) {
-          this.closeScope();
-        }
-
-        node.tokens.push(token);
-
-        break;
-      }
-
-      if (token.isComment) {
-        this.assertScope(node);
+      if (token.isComment() || token.isMultilineComment()) {
+        this.assertScopeNode(node);
         this.comment(token);
-
         continue;
       }
 
-      throw new KeyValuesSyntaxError(
-        `Unexpected token inside object: ${inspect(token.text)}`,
-        this.tokenSource(token)
-      );
+      throw this.syntaxError(token, `Unexpected token inside object: ${token}`);
     }
 
     return node;
   }
 
-  private objectProperty(keyToken: Token): Node {
+  private objectProperty(nameToken: TextToken): PropertyNode {
     const equalsToken = this.readControl(TokenCode.Equals);
-    const node = this.createNode(NodeType.Property, keyToken, equalsToken);
-    let nextToken = this.read();
-    let flagToken: Token | undefined;
+    const scope = this.assertScopeClass(ObjectNode);
+    const node = new PropertyNode(scope, nameToken).appendTokens(equalsToken);
 
+    this.scopePush(node);
     this.openScope(node);
 
-    if (nextToken.isText) {
-      flagToken = nextToken;
-      nextToken = this.read();
+    let nextToken = this.read();
 
-      if (!nextToken.isControl(TokenCode.Colon)) {
-        throw new KeyValuesSyntaxError(
-          `Unexpected token in object property value: ${inspect(nextToken.text)}`,
-          this.tokenSource(nextToken)
-        );
-      }
-
-      if (flagToken.text !== "resource" && flagToken.text !== "deferred_resource") {
-        throw new KeyValuesSyntaxError(
-          `Invalid flag ${flagToken.text}`,
-          this.tokenSource(flagToken)
-        );
-      }
+    if (nextToken.isText()) {
+      const flagToken = nextToken;
 
       nextToken = this.read();
 
-      if (nextToken.type !== TokenType.String) {
-        throw new KeyValuesSyntaxError(
-          "Invalid flagged value, only single-line strings can be flagged",
-          this.tokenSource(nextToken)
+      if (!nextToken.isControlCode(TokenCode.Colon)) {
+        throw this.syntaxError(
+          nextToken,
+          `Unexpected token in object property value: ${nextToken}`
         );
       }
 
-      this.createNode(NodeType.String, nextToken, flagToken);
+      if (!STRING_FLAG_VALUES.includes(flagToken.text)) {
+        throw this.syntaxError(flagToken, `Invalid flag ${inspect(flagToken.text)}`);
+      }
+
+      nextToken = this.read();
+
+      if (!nextToken.isString()) {
+        throw this.syntaxError(
+          nextToken,
+          "Invalid flagged value, only single-line strings can be flagged"
+        );
+      }
+
+      this.string(nextToken, flagToken);
     } else {
       this.parseToken(nextToken);
     }
@@ -263,23 +306,24 @@ export class Parser {
     return node;
   }
 
-  private array(openToken: Token): Node {
-    const node = this.createNode(NodeType.Array, openToken);
+  private array(openToken: ArrayOpenToken): ArrayNode {
+    const node = new ArrayNode(this.#scope).appendTokens(openToken);
 
+    this.scopePush(node);
     this.openScope(node);
 
     for (const token of this.tokenizer) {
-      if (token.isWhitespace || token.isControl(TokenCode.Comma)) {
-        continue;
-      }
-
-      if (token.isControl(TokenCode.RightSquareBracket)) {
-        this.assertScope(node);
+      if (token.isArrayClose()) {
+        this.assertScopeNode(node);
         this.closeScope();
 
-        node.tokens.push(token);
+        node.appendTokens(token);
 
         break;
+      }
+
+      if (token.isWhitespace() || token.isArrayElemSep()) {
+        continue;
       }
 
       this.parseToken(token);
@@ -288,28 +332,35 @@ export class Parser {
     return node;
   }
 
-  private number(token: Token): Node {
-    return this.createNode(NodeType.Number, token);
-  }
-
-  private string(token: Token): Node {
-    return this.createNode(NodeType.String, token);
-  }
-
-  private comment(token: Token): Node {
-    return this.createNode(NodeType.Comment, token);
-  }
-
-  private keyword(token: Token): Node {
-    switch (token.text) {
-      case "true":
-      case "false":
-        return this.createNode(NodeType.Boolean, token);
-      default:
-        throw new KeyValuesSyntaxError(
-          `Unknown keyword: ${inspect(token.text)}`,
-          this.tokenSource(token)
-        );
+  private keyword(token: KeywordToken): BooleanNode {
+    if (token.isBoolean()) {
+      return this.boolean(token);
     }
+
+    throw this.syntaxError(token, `Unknown keyword ${inspect(token.text)}`);
+  }
+
+  private boolean(token: BooleanToken): BooleanNode {
+    const node = new BooleanNode(this.#scope, token);
+
+    return this.scopePush(node);
+  }
+
+  private number(token: NumberToken): NumberNode {
+    const node = new NumberNode(this.#scope, token);
+
+    return this.scopePush(node);
+  }
+
+  private string(token: StringToken | MultilineStringToken, flagToken?: TextToken): StringNode {
+    const node = new StringNode(this.#scope, token, flagToken);
+
+    return this.scopePush(node);
+  }
+
+  private comment(token: CommentToken | MultilineCommentToken): CommentNode {
+    const node = new CommentNode(this.#scope, token);
+
+    return this.scopePush(node);
   }
 }

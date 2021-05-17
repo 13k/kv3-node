@@ -1,168 +1,44 @@
 import "core-js/modules/esnext.array.last-item";
 
-import { inspect } from "util";
+import { HEADER_REGEX, Keyword } from "../const";
+import { KeyValuesSourceError } from "../errors";
+import { Source } from "../source";
+import { Token } from "./token";
+import { isControlCode, isDigitCode, isWhitespaceCode, TokenCode } from "./token_code";
 
-import { KeyValuesInputError } from "./errors";
-import { Input } from "./source";
-
-const HEADER = /^(\s*|)(?<header><!--\s+kv3.+-->)\s*\n/;
-const MIN_NUMBER_CODE = "0".charCodeAt(0); // 48
-const MAX_NUMBER_CODE = "9".charCodeAt(0); // 57
-const KEYWORDS = ["true", "false"];
-
-export enum TokenCode {
-  EndOfFile = -1,
-  Tab = "\t".charCodeAt(0), // 9
-  NewLine = "\n".charCodeAt(0), // 10
-  FormFeed = "\f".charCodeAt(0), // 12
-  CarriageReturn = "\r".charCodeAt(0), // 13
-  Space = " ".charCodeAt(0), // 32
-  Quotation = '"'.charCodeAt(0), // 34
-  Apostrophe = "'".charCodeAt(0), // 39
-  Asterisk = "*".charCodeAt(0), // 42
-  Comma = ",".charCodeAt(0), // 44
-  Hyphen = "-".charCodeAt(0), // 45
-  FullStop = ".".charCodeAt(0), // 46
-  Solidus = "/".charCodeAt(0), // 47
-  Colon = ":".charCodeAt(0), // 58
-  Equals = "=".charCodeAt(0), // 61
-  LeftSquareBracket = "[".charCodeAt(0), // 91
-  ReverseSolidus = "\\".charCodeAt(0), // 92
-  RightSquareBracket = "]".charCodeAt(0), // 93
-  LeftCurlyBracket = "{".charCodeAt(0), // 123
-  RightCurlyBracket = "}".charCodeAt(0), // 125
-}
-
-export enum TokenType {
-  Whitespace,
-  Control,
-  Keyword,
-  Number,
-  String,
-  MultilineString,
-  Comment,
-  MultilineComment,
-  Text,
-}
-
-export class Token {
-  static char(code: number, pos: number): Token {
-    if (code === TokenCode.EndOfFile) {
-      return new this(TokenType.Control, "", pos, pos, code);
-    }
-
-    if (isWhitespaceCode(code)) {
-      return new this(TokenType.Whitespace, String.fromCharCode(code), pos, pos + 1, code);
-    }
-
-    if (isControlCode(code)) {
-      return new this(TokenType.Control, String.fromCharCode(code), pos, pos + 1, code);
-    }
-
-    return this.text([code], pos + 1);
-  }
-
-  static sequence(type: TokenType, codes: number[], endPos: number): Token {
-    return new this(type, String.fromCharCode(...codes), endPos - codes.length, endPos);
-  }
-
-  static number(codes: number[], endPos: number): Token {
-    return this.sequence(TokenType.Number, codes, endPos);
-  }
-
-  static keyword(codes: number[], endPos: number): Token {
-    return this.sequence(TokenType.Keyword, codes, endPos);
-  }
-
-  static string(codes: number[], endPos: number): Token {
-    return this.sequence(TokenType.String, codes, endPos);
-  }
-
-  static stringM(codes: number[], endPos: number): Token {
-    return this.sequence(TokenType.MultilineString, codes, endPos);
-  }
-
-  static comment(codes: number[], endPos: number): Token {
-    return this.sequence(TokenType.Comment, codes, endPos);
-  }
-
-  static commentM(codes: number[], endPos: number): Token {
-    return this.sequence(TokenType.MultilineComment, codes, endPos);
-  }
-
-  static text(codes: number[], endPos: number): Token {
-    return this.sequence(TokenType.Text, codes, endPos);
-  }
-
-  #toString?: string;
-
-  constructor(
-    public type: TokenType,
-    public text: string,
-    public start: number,
-    public end: number,
-    public code?: TokenCode
-  ) {}
-
-  get isEOF(): boolean {
-    return this.isControl(TokenCode.EndOfFile);
-  }
-
-  get isWhitespace(): boolean {
-    return this.type === TokenType.Whitespace;
-  }
-
-  get isComment(): boolean {
-    return this.type === TokenType.Comment || this.type === TokenType.MultilineComment;
-  }
-
-  get isString(): boolean {
-    return this.type === TokenType.String || this.type === TokenType.MultilineString;
-  }
-
-  get isText(): boolean {
-    return this.type === TokenType.Text;
-  }
-
-  isControl(code: TokenCode): boolean {
-    return this.type === TokenType.Control && this.code === code;
-  }
-
-  toString(): string {
-    if (this.#toString == null) {
-      this.#toString = inspect({
-        type: TokenType[this.type],
-        text: this.text,
-        start: this.start,
-        end: this.end,
-        code: this.code ? TokenCode[this.code] : null,
-      });
-    }
-
-    return this.#toString;
-  }
-}
-
+/**
+ * Tokenizer is responsible for matching text in the given {@link Source} and generating
+ * {@link Token} objects.
+ *
+ * An amateurish {@link https://pegn.dev | PEGn} syntax grammar is present in file `doc/syntax.pegn`.
+ *
+ * This class implements both {@link
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols |
+ * iteration protocols} over `Token` objects.
+ */
 export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
+  /** Raw kv3 header string extracted from `src`. */
   header: string;
-  src: string;
-  pos: number;
+  #pos: number;
   #eof = false;
 
-  constructor(public input: Input) {
-    const match = input.src.match(HEADER);
+  constructor(public src: Source) {
+    const match = src.data.match(HEADER_REGEX);
 
     if (match == null || match.groups == null) {
-      throw new KeyValuesInputError("No header found", input);
+      throw new KeyValuesSourceError("No header found", src);
     }
 
-    this.src = this.input.src;
     this.header = match.groups["header"];
-    this.pos = match[0].length;
+    this.#pos = match[0].length;
   }
 
   [Symbol.iterator](): Iterator<Token, void> {
     return this;
+  }
+
+  get data(): string {
+    return this.src.data;
   }
 
   next(): IteratorResult<Token, void> {
@@ -175,7 +51,7 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
     if (code === TokenCode.EndOfFile) {
       this.#eof = true;
 
-      return { done: false, value: Token.char(code, this.pos) };
+      return { done: false, value: Token.eof(this.#pos) };
     }
 
     let token: Token;
@@ -183,14 +59,14 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
     if (code === TokenCode.Quotation) {
       token = this.readString([code]);
     } else if (isControlCode(code)) {
-      token = Token.char(code, this.pos);
+      token = Token.char(code, this.#pos);
     } else if (code === TokenCode.Solidus) {
       token = this.readComment([code]);
     } else if (code === TokenCode.Hyphen) {
       token = this.readNumber([code]);
     } else if (isWhitespaceCode(code)) {
-      token = Token.char(code, this.pos);
-    } else if (isNumberCode(code)) {
+      token = Token.char(code, this.#pos);
+    } else if (isDigitCode(code)) {
       token = this.readNumber([code]);
     } else {
       token = this.readText([code]);
@@ -200,19 +76,19 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
   }
 
   private read(): number {
-    if (this.pos === this.src.length) {
+    if (this.#pos === this.data.length) {
       return TokenCode.EndOfFile;
     }
 
-    return this.src.charCodeAt(this.pos++);
+    return this.data.charCodeAt(this.#pos++);
   }
 
   private peek(): number {
-    return this.src.charCodeAt(this.pos);
+    return this.data.charCodeAt(this.#pos);
   }
 
   private rewind(n = 1): void {
-    this.pos -= n;
+    this.#pos -= n;
   }
 
   private readSeq(...sequence: number[]): number[] {
@@ -273,8 +149,8 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
   private readNumber(read: number[]): Token {
     if (read[0] === TokenCode.Hyphen) {
       // read: -
-      if (!isNumberCode(this.peek())) {
-        return Token.char(read[0], this.pos);
+      if (!isDigitCode(this.peek())) {
+        return Token.char(read[0], this.#pos);
       }
 
       // read: -[0-9]
@@ -290,7 +166,7 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
       read.push(code);
 
-      if (isNumberCode(code)) {
+      if (isDigitCode(code)) {
         continue;
       }
 
@@ -301,14 +177,14 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
           // read: -?[0-9].*
           read.pop();
 
-          return Token.text(read, this.pos);
+          return Token.text(read, this.#pos);
 
         case TokenCode.FullStop:
           // read: -?[0-9]+\.
 
           if (float) {
             // read: -?[0-9]+\.[0-9]*\.
-            return Token.text(read, this.pos);
+            return Token.text(read, this.#pos);
           }
 
           float = true;
@@ -322,10 +198,10 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
           if (read.lastItem === TokenCode.FullStop) {
             // read: -?[0-9]+\.
-            return Token.text(read, this.pos);
+            return Token.text(read, this.#pos);
           }
 
-          return Token.number(read, this.pos);
+          return Token.number(read, this.#pos);
 
         default:
           if (isWhitespaceCode(code)) {
@@ -335,14 +211,14 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
             if (read.lastItem === TokenCode.FullStop) {
               // read: -?[0-9]+\.
-              return Token.text(read, this.pos);
+              return Token.text(read, this.#pos);
             }
 
-            return Token.number(read, this.pos);
+            return Token.number(read, this.#pos);
           }
 
           // read: -?[0-9]+\.?[0-9]*.
-          return Token.text(read, this.pos);
+          return Token.text(read, this.#pos);
       }
     }
   }
@@ -365,7 +241,7 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
         read.pop();
 
-        return Token.text(read, this.pos);
+        return Token.text(read, this.#pos);
       }
     }
   }
@@ -373,7 +249,7 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
   private readKeyword(read: number[]): Token | null {
     const readStr = String.fromCharCode(...read);
 
-    for (const keyword of KEYWORDS) {
+    for (const keyword of Object.values(Keyword)) {
       if (!keyword.startsWith(readStr)) {
         continue;
       }
@@ -383,7 +259,7 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
       const readSeq = this.readSeq(...restSeq);
 
       if (readSeq.length > 0) {
-        return Token.keyword([...read, ...readSeq], this.pos);
+        return Token.keyword([...read, ...readSeq], this.#pos);
       }
     }
 
@@ -416,25 +292,25 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
       this.rewind();
 
-      return Token.text(read, this.pos);
+      return Token.text(read, this.#pos);
     }
 
     // read: "..."
-    return Token.string(read, this.pos);
+    return Token.string(read, this.#pos);
   }
 
   // read: ""
   // try to match multi-line string """\n...\n"""
   private readMultiLineString(read: number[]): Token {
     if (this.peek() !== TokenCode.Quotation) {
-      return Token.text(read, this.pos);
+      return Token.text(read, this.#pos);
     }
 
     // read: """
     read.push(this.read());
 
     if (this.peek() !== TokenCode.NewLine) {
-      return Token.text(read, this.pos);
+      return Token.text(read, this.#pos);
     }
 
     // read: """\n
@@ -457,11 +333,11 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
       this.rewind();
 
-      return Token.text(read, this.pos);
+      return Token.text(read, this.#pos);
     }
 
     // read: """\n...\n"""
-    return Token.stringM(read, this.pos);
+    return Token.stringM(read, this.#pos);
   }
 
   // read: /
@@ -481,7 +357,7 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
       return this.readMultiLineComment(read);
     }
 
-    return Token.text(read, this.pos);
+    return Token.text(read, this.#pos);
   }
 
   // read: //
@@ -498,7 +374,13 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
       this.rewind();
     }
 
-    return Token.comment(read, this.pos);
+    if (read.lastItem === TokenCode.NewLine) {
+      // read: //...\n
+      // read: //...
+      read.pop();
+    }
+
+    return Token.comment(read, this.#pos);
   }
 
   // read: /*
@@ -514,42 +396,10 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
       this.rewind();
 
-      return Token.text(read, this.pos);
+      return Token.text(read, this.#pos);
     }
 
     // read: /*...*/
-    return Token.commentM(read, this.pos);
-  }
-}
-
-function isWhitespaceCode(code: number): boolean {
-  switch (code) {
-    case TokenCode.Tab:
-    case TokenCode.NewLine:
-    case TokenCode.FormFeed:
-    case TokenCode.CarriageReturn:
-    case TokenCode.Space:
-      return true;
-    default:
-      return false;
-  }
-}
-
-function isNumberCode(code: number): boolean {
-  return code >= MIN_NUMBER_CODE && code <= MAX_NUMBER_CODE;
-}
-
-function isControlCode(code: number): boolean {
-  switch (code) {
-    case TokenCode.Comma:
-    case TokenCode.Colon:
-    case TokenCode.Equals:
-    case TokenCode.LeftSquareBracket:
-    case TokenCode.RightSquareBracket:
-    case TokenCode.LeftCurlyBracket:
-    case TokenCode.RightCurlyBracket:
-      return true;
-    default:
-      return false;
+    return Token.commentM(read, this.#pos);
   }
 }
