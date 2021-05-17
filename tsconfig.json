@@ -1,5 +1,4 @@
 {
-  "ts-node": { "files": true },
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -12,5 +11,12 @@
     "alwaysStrict": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "ts-node": { "files": true },
+  "typedocOptions": {
+    "entryPoints": ["src"],
+    "exclude": ["**/index.ts"],
+    "readme": "README.md",
+    "out": "doc/api"
+  }
 }
