@@ -49,23 +49,29 @@ export class Source {
    *   If `position` could not be found in source data, it returns `-1`.
    */
   indexOf(pos: Position): number {
-    if (pos.offset < 0 || pos.line < 1 || pos.column < 1) {
+    if (pos.offset < 0 || pos.offset >= this.data.length || pos.line < 1 || pos.column < 1) {
       return -1;
     }
 
-    let line = 1;
-    let column = 1;
+    let line = this.data[pos.offset] === "\n" ? 0 : 1;
+    let column = 0;
 
     for (let i = pos.offset; i < this.data.length; i++) {
       if (this.data[i] === "\n") {
-        column = 1;
+        column = 0;
         line += 1;
-      } else {
-        column += 1;
+        continue;
+      }
+
+      column += 1;
+
+      // fail early
+      if ((line === pos.line && column > pos.column) || line > pos.line) {
+        return -1;
       }
 
       if (pos.line === line && pos.column === column) {
-        return this.data[i] === "\n" ? i + 1 : i;
+        return i;
       }
     }
 
