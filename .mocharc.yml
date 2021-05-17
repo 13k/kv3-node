@@ -4,4 +4,4 @@ diff: true
 extension:
   - "ts"
 spec:
-  - "test/**/*"
+  - "test/**/*.test.ts"
