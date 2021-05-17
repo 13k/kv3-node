@@ -107,6 +107,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/fs-extra@npm:^9.0.11":
+  version: 9.0.11
+  resolution: "@types/fs-extra@npm:9.0.11"
+  dependencies:
+    "@types/node": "*"
+  checksum: e7a4df27880c525cf12c2d16a4fafb0b68b27c74e24cd4d0d637c56e9be27795efdd89cfc85de751ad1edfdcf1b3eb0bf97231eba90c91086825659de4ab8c72
+  languageName: node
+  linkType: hard
+
 "@types/json-schema@npm:^7.0.3":
   version: 7.0.7
   resolution: "@types/json-schema@npm:7.0.7"
@@ -128,10 +137,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^11.15.54":
-  version: 11.15.54
-  resolution: "@types/node@npm:11.15.54"
-  checksum: 06f13240a370289c828a6efccc7570ab3f637ff65b6e77a3146dc6b9a1dd584e5d915dc51c2b49c23a4b983fbee991bd8d7ca49b3b3fba8f86bc2b1d2eac4419
+"@types/node@npm:*, @types/node@npm:^15.3.0":
+  version: 15.3.0
+  resolution: "@types/node@npm:15.3.0"
+  checksum: 44039665ab71a6ec12e6637a9db4ec3123fdfaf52952ca8028a6f1b37c41c2d380e88d28a41e02693bf9d4815307e0ad938815bf8ffedc5f4d045855fa28db06
   languageName: node
   linkType: hard
 
@@ -1285,6 +1294,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-extra@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "fs-extra@npm:10.0.0"
+  dependencies:
+    graceful-fs: ^4.2.0
+    jsonfile: ^6.0.1
+    universalify: ^2.0.0
+  checksum: 84632d143fe3125b8c3c2b1fedbbdfcfb84fc3e087522b4e138cc07edf574619925713a6609f6d5e53ede2e31ab319c7d528ea4a4a770ba6622a16bf4447cd8b
+  languageName: node
+  linkType: hard
+
 "fs-extra@npm:^9.1.0":
   version: 9.1.0
   resolution: "fs-extra@npm:9.1.0"
@@ -1919,8 +1939,9 @@ fsevents@~2.3.1:
   dependencies:
     "@types/chai": ^4.2.18
     "@types/core-js": ^2.5.4
+    "@types/fs-extra": ^9.0.11
     "@types/mocha": ^8.2.2
-    "@types/node": ^11.15.54
+    "@types/node": ^15.3.0
     "@typescript-eslint/eslint-plugin": ^4.23.0
     "@typescript-eslint/parser": ^4.23.0
     chai: ^4.3.4
@@ -1930,8 +1951,10 @@ fsevents@~2.3.1:
     eslint-import-resolver-node: ^0.3.4
     eslint-plugin-import: ^2.22.1
     eslint-plugin-simple-import-sort: ^7.0.0
+    fs-extra: ^10.0.0
     mocha: ^8.4.0
     prettier: ^2.3.0
+    ts-dedent: ^2.1.1
     ts-node: ^9.1.1
     typedoc: ^0.20.36
     typescript: ^4.2.4
@@ -3154,6 +3177,13 @@ fsevents@~2.3.1:
   dependencies:
     is-number: ^7.0.0
   checksum: 2b6001e314e4998a07137c197e333fac2f86d46d0593da90b678ae64e2daa07274b508f83cca09e6b3504cdf222497dcb5b7daceb6dc13a9a8872f58a27db907
+  languageName: node
+  linkType: hard
+
+"ts-dedent@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "ts-dedent@npm:2.1.1"
+  checksum: 417aa02d441415ce6eb28357af0ed3ef49c7c56ce89f286d3ab6bdfc2ec06f851cd8c954b160178ddbcb57819fd13b6f210aeefee7c5696fa4ad3c6777ee336e
   languageName: node
   linkType: hard
 
