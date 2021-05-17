@@ -19,7 +19,6 @@ export interface TokensFixtureItem {
   type: string;
   text: string;
   start: number;
-  end: number;
   code?: string;
 }
 
@@ -31,11 +30,11 @@ export async function tokensFixture(name: string, options: FixtureOptions = {}):
   const fixture: TokensFixture = await fse.readJSON(filename, { encoding });
 
   return fixture.map((item) => {
-    const { text, start, end } = item;
+    const { text, start } = item;
     const type = TokenType[item.type as keyof typeof TokenType];
     const code = item.code != null ? TokenCode[item.code as keyof typeof TokenCode] : undefined;
 
-    return new Token(type, text, start, end, code);
+    return new Token(type, text, start, code);
   });
 }
 

@@ -25,12 +25,12 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
   constructor(public src: Source) {
     const match = src.data.match(HEADER_REGEX);
 
-    if (match == null || match.groups == null) {
-      throw new KeyValuesSourceError("No header found", src);
+    if (match == null || match.index == null || match.groups == null) {
+      throw new KeyValuesSourceError("Header not found", src);
     }
 
     this.header = match.groups["header"];
-    this.#pos = match[0].length;
+    this.#pos = match[0].length - 1;
   }
 
   [Symbol.iterator](): Iterator<Token, void> {
@@ -57,34 +57,35 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
     let token: Token;
 
     if (code === TokenCode.Quotation) {
-      token = this.readString([code]);
+      token = this.readString([code], this.#pos);
     } else if (isControlCode(code)) {
       token = Token.char(code, this.#pos);
     } else if (code === TokenCode.Solidus) {
-      token = this.readComment([code]);
+      token = this.readComment([code], this.#pos);
     } else if (code === TokenCode.Hyphen) {
-      token = this.readNumber([code]);
+      token = this.readNumber([code], this.#pos);
     } else if (isWhitespaceCode(code)) {
       token = Token.char(code, this.#pos);
     } else if (isDigitCode(code)) {
-      token = this.readNumber([code]);
+      token = this.readNumber([code], this.#pos);
     } else {
-      token = this.readText([code]);
+      token = this.readText([code], this.#pos);
     }
 
     return { done: false, value: token };
   }
 
   private read(): number {
-    if (this.#pos === this.data.length) {
+    if (this.#pos === this.data.length - 1) {
+      this.#pos++;
       return TokenCode.EndOfFile;
     }
 
-    return this.data.charCodeAt(this.#pos++);
+    return this.data.charCodeAt(++this.#pos);
   }
 
   private peek(): number {
-    return this.data.charCodeAt(this.#pos);
+    return this.data.charCodeAt(this.#pos + 1);
   }
 
   private rewind(n = 1): void {
@@ -146,11 +147,11 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
   // read: [\-0-9]
   // try to match number
-  private readNumber(read: number[]): Token {
+  private readNumber(read: number[], start: number): Token {
     if (read[0] === TokenCode.Hyphen) {
       // read: -
       if (!isDigitCode(this.peek())) {
-        return Token.char(read[0], this.#pos);
+        return Token.char(read[0], start);
       }
 
       // read: -[0-9]
@@ -177,14 +178,14 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
           // read: -?[0-9].*
           read.pop();
 
-          return Token.text(read, this.#pos);
+          return Token.text(read, start);
 
         case TokenCode.FullStop:
           // read: -?[0-9]+\.
 
           if (float) {
             // read: -?[0-9]+\.[0-9]*\.
-            return Token.text(read, this.#pos);
+            return Token.text(read, start);
           }
 
           float = true;
@@ -198,10 +199,10 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
           if (read.lastItem === TokenCode.FullStop) {
             // read: -?[0-9]+\.
-            return Token.text(read, this.#pos);
+            return Token.text(read, start);
           }
 
-          return Token.number(read, this.#pos);
+          return Token.number(read, start);
 
         default:
           if (isWhitespaceCode(code)) {
@@ -211,21 +212,21 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
             if (read.lastItem === TokenCode.FullStop) {
               // read: -?[0-9]+\.
-              return Token.text(read, this.#pos);
+              return Token.text(read, start);
             }
 
-            return Token.number(read, this.#pos);
+            return Token.number(read, start);
           }
 
           // read: -?[0-9]+\.?[0-9]*.
-          return Token.text(read, this.#pos);
+          return Token.text(read, start);
       }
     }
   }
 
   // read: [^\s{}\[\]=,\-:0-9"]
-  private readText(read: number[]): Token {
-    const keyword = this.readKeyword(read);
+  private readText(read: number[], start: number): Token {
+    const keyword = this.readKeyword(read, start);
 
     if (keyword != null) {
       return keyword;
@@ -241,12 +242,12 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
         read.pop();
 
-        return Token.text(read, this.#pos);
+        return Token.text(read, start);
       }
     }
   }
 
-  private readKeyword(read: number[]): Token | null {
+  private readKeyword(read: number[], start: number): Token | null {
     const readStr = String.fromCharCode(...read);
 
     for (const keyword of Object.values(Keyword)) {
@@ -259,7 +260,7 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
       const readSeq = this.readSeq(...restSeq);
 
       if (readSeq.length > 0) {
-        return Token.keyword([...read, ...readSeq], this.#pos);
+        return Token.keyword([...read, ...readSeq], start);
       }
     }
 
@@ -268,20 +269,20 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
   // read: "
   // try to match single-line or multi-line string
-  private readString(read: number[]): Token {
+  private readString(read: number[], start: number): Token {
     if (this.peek() === TokenCode.Quotation) {
       // read: ""
       read.push(this.read());
 
-      return this.readMultiLineString(read);
+      return this.readMultiLineString(read, start);
     }
 
-    return this.readSingleLineString(read);
+    return this.readSingleLineString(read, start);
   }
 
   // read: "
   // try to match single-line string "..."
-  private readSingleLineString(read: number[]): Token {
+  private readSingleLineString(read: number[], start: number): Token {
     // read: "...["|EOF]
     read = read.concat(this.readUntil(TokenCode.Quotation));
 
@@ -292,25 +293,25 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
       this.rewind();
 
-      return Token.text(read, this.#pos);
+      return Token.text(read, start);
     }
 
     // read: "..."
-    return Token.string(read, this.#pos);
+    return Token.string(read, start);
   }
 
   // read: ""
   // try to match multi-line string """\n...\n"""
-  private readMultiLineString(read: number[]): Token {
+  private readMultiLineString(read: number[], start: number): Token {
     if (this.peek() !== TokenCode.Quotation) {
-      return Token.text(read, this.#pos);
+      return Token.text(read, start);
     }
 
     // read: """
     read.push(this.read());
 
     if (this.peek() !== TokenCode.NewLine) {
-      return Token.text(read, this.#pos);
+      return Token.text(read, start);
     }
 
     // read: """\n
@@ -333,36 +334,36 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
       this.rewind();
 
-      return Token.text(read, this.#pos);
+      return Token.text(read, start);
     }
 
     // read: """\n...\n"""
-    return Token.stringM(read, this.#pos);
+    return Token.stringM(read, start);
   }
 
   // read: /
   // try to match single-line or multi-line comment
-  private readComment(read: number[]): Token {
+  private readComment(read: number[], start: number): Token {
     if (this.peek() === TokenCode.Solidus) {
       // read: //
       read.push(this.read());
 
-      return this.readSingleLineComment(read);
+      return this.readSingleLineComment(read, start);
     }
 
     if (this.peek() === TokenCode.Asterisk) {
       // read: /*
       read.push(this.read());
 
-      return this.readMultiLineComment(read);
+      return this.readMultiLineComment(read, start);
     }
 
-    return Token.text(read, this.#pos);
+    return Token.text(read, start);
   }
 
   // read: //
   // try to match single-line comment //...
-  private readSingleLineComment(read: number[]): Token {
+  private readSingleLineComment(read: number[], start: number): Token {
     // read: //...[\n|EOF]
     read = read.concat(this.readUntil(TokenCode.NewLine));
 
@@ -380,12 +381,12 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
       read.pop();
     }
 
-    return Token.comment(read, this.#pos);
+    return Token.comment(read, start);
   }
 
   // read: /*
   // try to match multi-line comment /*...*/
-  private readMultiLineComment(read: number[]): Token {
+  private readMultiLineComment(read: number[], start: number): Token {
     // read: /*...[*/|EOF]
     read = read.concat(this.readUntil(TokenCode.Asterisk, TokenCode.Solidus));
 
@@ -396,10 +397,10 @@ export class Tokenizer implements Iterator<Token, void>, Iterable<Token> {
 
       this.rewind();
 
-      return Token.text(read, this.#pos);
+      return Token.text(read, start);
     }
 
     // read: /*...*/
-    return Token.commentM(read, this.#pos);
+    return Token.commentM(read, start);
   }
 }

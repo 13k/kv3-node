@@ -30,86 +30,84 @@ export class Token {
    * The resulting token attributes are as follows:
    *   - `text`: set to `String.fromCharCode(code)`. If `code` is `TokenCode.EndOfFile`, set to empty string.
    *   - `start`: set to the given `pos`.
-   *   - `end`: set to `pos + 1`. If code is `TokenCode.EndOfFile`, set to `pos`.
    */
-  static char(code: TokenCode.EndOfFile, pos: number): EndOfFileToken;
-  static char(code: WhitespaceTokenCode, pos: number): WhitespaceToken;
-  static char(code: SyntaxControlTokenCode, pos: number): ControlToken;
-  static char(code: number, pos: number): TextToken;
-  static char(code: number, pos: number): Token {
+  static char(code: TokenCode.EndOfFile, index: number): EndOfFileToken;
+  static char(code: WhitespaceTokenCode, index: number): WhitespaceToken;
+  static char(code: SyntaxControlTokenCode, index: number): ControlToken;
+  static char(code: number, index: number): TextToken;
+  static char(code: number, index: number): Token {
     if (code === TokenCode.EndOfFile) {
-      return this.eof(pos);
+      return this.eof(index);
     }
 
     if (isWhitespaceCode(code)) {
-      return new this(TokenType.Whitespace, String.fromCharCode(code), pos, pos + 1, code);
+      return new this(TokenType.Whitespace, String.fromCharCode(code), index, code);
     }
 
     if (isControlCode(code)) {
-      return new this(TokenType.Control, String.fromCharCode(code), pos, pos + 1, code);
+      return new this(TokenType.Control, String.fromCharCode(code), index, code);
     }
 
-    return this.text([code], pos + 1);
+    return this.text([code], index);
   }
 
   /**
    * Creates a multi character token with the given `type`.
    *
    * The resulting token attributes are as follows:
-   *   - `text` is set to `String.fromCharCode(...codes)`
-   *   - `start` position is set to the given `endPos - codes.length`. The `end` position is set to
-   *     `endPos`.
+   *   - `text`: set to `String.fromCharCode(...codes)`.
+   *   - `start`: set to the given `pos`.
    */
-  static sequence(type: TokenType.Keyword, codes: number[], endPos: number): KeywordToken;
-  static sequence(type: TokenType.Number, codes: number[], endPos: number): NumberToken;
-  static sequence(type: TokenType.String, codes: number[], endPos: number): StringToken;
+  static sequence(type: TokenType.Keyword, codes: number[], index: number): KeywordToken;
+  static sequence(type: TokenType.Number, codes: number[], index: number): NumberToken;
+  static sequence(type: TokenType.String, codes: number[], index: number): StringToken;
   static sequence(
     type: TokenType.MultilineString,
     codes: number[],
-    endPos: number
+    index: number
   ): MultilineStringToken;
-  static sequence(type: TokenType.Comment, codes: number[], endPos: number): CommentToken;
+  static sequence(type: TokenType.Comment, codes: number[], index: number): CommentToken;
   static sequence(
     type: TokenType.MultilineComment,
     codes: number[],
-    endPos: number
+    index: number
   ): MultilineCommentToken;
-  static sequence(type: TokenType.Text, codes: number[], endPos: number): TextToken;
-  static sequence(type: TokenType, codes: number[], endPos: number): Token;
-  static sequence(type: TokenType, codes: number[], endPos: number): Token {
-    return new this(type, String.fromCharCode(...codes), endPos - codes.length, endPos);
+  static sequence(type: TokenType.Text, codes: number[], index: number): TextToken;
+  static sequence(type: TokenType, codes: number[], index: number): Token;
+  static sequence(type: TokenType, codes: number[], index: number): Token {
+    return new this(type, String.fromCharCode(...codes), index);
   }
 
-  static eof(pos: number): EndOfFileToken {
-    return new this(TokenType.Control, "", pos, pos, TokenCode.EndOfFile) as EndOfFileToken;
+  static eof(index: number): EndOfFileToken {
+    return new this(TokenType.Control, "", index, TokenCode.EndOfFile) as EndOfFileToken;
   }
 
-  static keyword(codes: number[], endPos: number): KeywordToken {
-    return this.sequence(TokenType.Keyword, codes, endPos);
+  static keyword(codes: number[], index: number): KeywordToken {
+    return this.sequence(TokenType.Keyword, codes, index);
   }
 
-  static number(codes: number[], endPos: number): NumberToken {
-    return this.sequence(TokenType.Number, codes, endPos);
+  static number(codes: number[], index: number): NumberToken {
+    return this.sequence(TokenType.Number, codes, index);
   }
 
-  static string(codes: number[], endPos: number): StringToken {
-    return this.sequence(TokenType.String, codes, endPos);
+  static string(codes: number[], index: number): StringToken {
+    return this.sequence(TokenType.String, codes, index);
   }
 
-  static stringM(codes: number[], endPos: number): MultilineStringToken {
-    return this.sequence(TokenType.MultilineString, codes, endPos);
+  static stringM(codes: number[], index: number): MultilineStringToken {
+    return this.sequence(TokenType.MultilineString, codes, index);
   }
 
-  static comment(codes: number[], endPos: number): CommentToken {
-    return this.sequence(TokenType.Comment, codes, endPos);
+  static comment(codes: number[], index: number): CommentToken {
+    return this.sequence(TokenType.Comment, codes, index);
   }
 
-  static commentM(codes: number[], endPos: number): MultilineCommentToken {
-    return this.sequence(TokenType.MultilineComment, codes, endPos);
+  static commentM(codes: number[], index: number): MultilineCommentToken {
+    return this.sequence(TokenType.MultilineComment, codes, index);
   }
 
-  static text(codes: number[], endPos: number): TextToken {
-    return this.sequence(TokenType.Text, codes, endPos);
+  static text(codes: number[], index: number): TextToken {
+    return this.sequence(TokenType.Text, codes, index);
   }
 
   #toString?: string;
@@ -119,9 +117,12 @@ export class Token {
     public type: TokenType,
     public text: string,
     public start: number,
-    public end: number,
     public code?: TokenCode
   ) {}
+
+  get end(): number {
+    return this.start + this.text.length;
+  }
 
   isWhitespace(): this is WhitespaceToken {
     return this.type === TokenType.Whitespace;

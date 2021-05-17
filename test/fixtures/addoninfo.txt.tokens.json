@@ -1,0 +1,1328 @@
+[
+  {
+    "code": "LeftCurlyBracket",
+    "start": 134,
+    "text": "{",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 135,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 136,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 137,
+    "text": "CheckAFKPlayers",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 152,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 153,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 154,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 155,
+    "text": "false",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 160,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 161,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 162,
+    "text": "Default_Keys",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 174,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 175,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 176,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "LeftSquareBracket",
+    "start": 177,
+    "text": "[",
+    "type": "Control"
+  },
+  {
+    "code": "RightSquareBracket",
+    "start": 178,
+    "text": "]",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 179,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 180,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 181,
+    "text": "DefaultMap",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 191,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 192,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 193,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 194,
+    "text": "\"cottage\"",
+    "type": "String"
+  },
+  {
+    "code": "NewLine",
+    "start": 203,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 204,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 205,
+    "text": "DisableIK",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 214,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 215,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 216,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 217,
+    "text": "false",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 222,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 223,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 224,
+    "text": "EnablePickRules",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 239,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 240,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 241,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 242,
+    "text": "false",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 247,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 248,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 249,
+    "text": "EventGame",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 258,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 259,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 260,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 261,
+    "text": "false",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 266,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 267,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 268,
+    "text": "ForceDefaultGuide",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 285,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 286,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 287,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 288,
+    "text": "false",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 293,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 294,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 295,
+    "text": "HeroGuidesSupported",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 314,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 315,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 316,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 317,
+    "text": "true",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 321,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 322,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 323,
+    "text": "HideInTools",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 334,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 335,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 336,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 337,
+    "text": "false",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 342,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 343,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 344,
+    "text": "IsPlayable",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 354,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 355,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 356,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 357,
+    "text": "true",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 361,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 362,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 363,
+    "text": "IsTemplate",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 373,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 374,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 375,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 376,
+    "text": "false",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 381,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 382,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 383,
+    "text": "MaxPlayers",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 393,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 394,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 395,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 396,
+    "text": "1",
+    "type": "Number"
+  },
+  {
+    "code": "Tab",
+    "start": 398,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 399,
+    "text": "MinimalPrecache",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 414,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 415,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 416,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 417,
+    "text": "false",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 422,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 423,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 424,
+    "text": "MinPlayers",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 434,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 435,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 436,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 437,
+    "text": "1",
+    "type": "Number"
+  },
+  {
+    "code": "Tab",
+    "start": 439,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 440,
+    "text": "PenaltiesEnabled",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 456,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 457,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 458,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 459,
+    "text": "false",
+    "type": "Keyword"
+  },
+  {
+    "code": "NewLine",
+    "start": 464,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 465,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 466,
+    "text": "TeamCount",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 475,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 476,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 477,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 478,
+    "text": "1",
+    "type": "Number"
+  },
+  {
+    "code": "NewLine",
+    "start": 480,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 481,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 482,
+    "text": "maps",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 486,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 487,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 488,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 489,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "LeftSquareBracket",
+    "start": 490,
+    "text": "[",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 491,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 492,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 493,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 494,
+    "text": "\"cottage\"",
+    "type": "String"
+  },
+  {
+    "code": "Comma",
+    "start": 503,
+    "text": ",",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 504,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 505,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 506,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 507,
+    "text": "\"island\"",
+    "type": "String"
+  },
+  {
+    "code": "Comma",
+    "start": 515,
+    "text": ",",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 516,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 517,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "RightSquareBracket",
+    "start": 518,
+    "text": "]",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 519,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "NewLine",
+    "start": 520,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 521,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 522,
+    "text": "map_options",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 533,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 534,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 535,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 536,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "LeftSquareBracket",
+    "start": 537,
+    "text": "[",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 538,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 539,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 540,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "LeftCurlyBracket",
+    "start": 541,
+    "text": "{",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 542,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 543,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 544,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 545,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 546,
+    "text": "map",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 549,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 550,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 551,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 552,
+    "text": "\"cottage\"",
+    "type": "String"
+  },
+  {
+    "code": "NewLine",
+    "start": 561,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 562,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 563,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 564,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 565,
+    "text": "MaxPlayers",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 575,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 576,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 577,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 578,
+    "text": "1",
+    "type": "Number"
+  },
+  {
+    "code": "Tab",
+    "start": 580,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 581,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "RightCurlyBracket",
+    "start": 582,
+    "text": "}",
+    "type": "Control"
+  },
+  {
+    "code": "Comma",
+    "start": 583,
+    "text": ",",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 584,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 585,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 586,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "LeftCurlyBracket",
+    "start": 587,
+    "text": "{",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 588,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 589,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 590,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 591,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 592,
+    "text": "map",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 595,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 596,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 597,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 598,
+    "text": "\"island\"",
+    "type": "String"
+  },
+  {
+    "code": "NewLine",
+    "start": 606,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 607,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 608,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 609,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 610,
+    "text": "MaxPlayers",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 620,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 621,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 622,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 623,
+    "text": "1",
+    "type": "Number"
+  },
+  {
+    "code": "Tab",
+    "start": 625,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 626,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "RightCurlyBracket",
+    "start": 627,
+    "text": "}",
+    "type": "Control"
+  },
+  {
+    "code": "Comma",
+    "start": 628,
+    "text": ",",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 629,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 630,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "RightSquareBracket",
+    "start": 631,
+    "text": "]",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 632,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "NewLine",
+    "start": 633,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 634,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 635,
+    "text": "hero_picker",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 646,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 647,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 648,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 649,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "LeftCurlyBracket",
+    "start": 650,
+    "text": "{",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 651,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 652,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 653,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 654,
+    "text": "background_map",
+    "type": "Text"
+  },
+  {
+    "code": "Space",
+    "start": 668,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Equals",
+    "start": 669,
+    "text": "=",
+    "type": "Control"
+  },
+  {
+    "code": "Space",
+    "start": 670,
+    "text": " ",
+    "type": "Whitespace"
+  },
+  {
+    "code": null,
+    "start": 671,
+    "text": "\"\"",
+    "type": "Text"
+  },
+  {
+    "code": "NewLine",
+    "start": 673,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "Tab",
+    "start": 674,
+    "text": "\t",
+    "type": "Whitespace"
+  },
+  {
+    "code": "RightCurlyBracket",
+    "start": 675,
+    "text": "}",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 676,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "RightCurlyBracket",
+    "start": 677,
+    "text": "}",
+    "type": "Control"
+  },
+  {
+    "code": "NewLine",
+    "start": 678,
+    "text": "\n",
+    "type": "Whitespace"
+  },
+  {
+    "code": "EndOfFile",
+    "start": 679,
+    "text": "",
+    "type": "Control"
+  }
+]
