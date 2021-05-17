@@ -1,9 +1,7 @@
 /**
- * Represents a (`line`, `column`) position in the source code, starting from `offset`.
+ * Represents a (`line`, `column`) position in the source code.
  */
 export interface Position {
-  /** Source data offset index. Value starts at `0`. A value lower than `0` is treated as error or ignored. */
-  offset: number;
   /** Source line number. Value starts at `1`. A value lower than `1` is treated as error or ignored. */
   line: number;
   /** Source column number. Value starts at `1`. A value lower than `1` is treated as error or ignored. */
@@ -42,21 +40,22 @@ export class Source {
   /**
    * Finds the index in source data for the given position.
    *
-   * If `position` contains an `offset` greater than 0, the search starts from its value and `line`
-   * and `column` are considered relative to `offset`.
-   *
    * @returns If `position` contains invalid values, it returns `-1` (see {@link Position}).
    *   If `position` could not be found in source data, it returns `-1`.
    */
   indexOf(pos: Position): number {
-    if (pos.offset < 0 || pos.offset >= this.data.length || pos.line < 1 || pos.column < 1) {
+    if (pos.line < 1 || pos.column < 1) {
       return -1;
     }
 
-    let line = this.data[pos.offset] === "\n" ? 0 : 1;
+    if (this.data.length === 0) {
+      return -1;
+    }
+
+    let line = this.data[0] === "\n" ? 0 : 1;
     let column = 0;
 
-    for (let i = pos.offset; i < this.data.length; i++) {
+    for (let i = 0; i < this.data.length; i++) {
       if (this.data[i] === "\n") {
         column = 0;
         line += 1;
@@ -65,13 +64,12 @@ export class Source {
 
       column += 1;
 
-      // fail early
-      if ((line === pos.line && column > pos.column) || line > pos.line) {
-        return -1;
-      }
-
       if (pos.line === line && pos.column === column) {
         return i;
+      }
+
+      if ((line === pos.line && column > pos.column) || line > pos.line) {
+        return -1;
       }
     }
 
@@ -90,7 +88,7 @@ export class Source {
     }
 
     if (index === 0) {
-      return { offset: 0, line: 1, column: 1 };
+      return { line: 1, column: 1 };
     }
 
     let line = 1;
@@ -105,7 +103,7 @@ export class Source {
       }
     }
 
-    return { offset: 0, line, column };
+    return { line, column };
   }
 
   /**
@@ -114,11 +112,33 @@ export class Source {
    * @param pos Position in source
    * @param lines Number of context lines around `pos`
    */
-  getContext(pos: Position, lines = 1): string {
-    const startPos: Position = { offset: pos.offset, line: pos.line - lines, column: 1 };
-    const endPos: Position = { offset: pos.offset, line: pos.line + lines + 1, column: 1 };
+  context(pos: Position, lines = 1): string {
+    if (lines < 1) {
+      return "";
+    }
+
+    if (this.indexOf(pos) === -1) {
+      return "";
+    }
+
+    const startLine = pos.line - lines;
+    const startPos: Position = {
+      line: startLine < 1 ? 1 : startLine,
+      column: 1,
+    };
+
     const startIndex = this.indexOf(startPos);
-    const endIndex = this.indexOf(endPos);
+
+    if (startIndex === -1) {
+      return "";
+    }
+
+    const endPos: Position = { line: pos.line + lines + 1, column: 1 };
+    let endIndex: number | undefined = this.indexOf(endPos);
+
+    if (endIndex === -1) {
+      endIndex = undefined;
+    }
 
     return this.data.slice(startIndex, endIndex);
   }

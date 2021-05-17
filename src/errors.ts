@@ -62,7 +62,7 @@ export class KeyValuesSyntaxError extends KeyValuesSourceError {
 
     const ctxLines = 2;
     const filename = this.src.filename || "<input>";
-    const context = this.src.getContext(this.pos, ctxLines);
+    const context = this.src.context(this.pos, ctxLines);
     let lineno = this.pos.line - ctxLines;
 
     this.#toString = `${filename}:${this.pos.line}:${this.pos.column}: ${this.message}\n`;
